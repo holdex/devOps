@@ -90,7 +90,7 @@
 			var idList = v.idList
 			$(bugCardsIds).each(function(i,v){
 				if (idList !== inProcessListId && v === id) {
-					container.append('<a style="background-color: red; color: white;" href="' + url + '">' + name + '</a>' + "<br>");
+					container.append('<li class="list-card-details"><a href="' + url + '">' + name + '</a></li>' + "<br>");
 				}
 			});
 		})
@@ -212,10 +212,62 @@
 	
 	</script>
 
-	<div id="bugsNotInProcess">
-		<h1>Fix it!</h1>
-		<p>If you know there is a bug, you must fix it. <a href="https://www.ministryoftesting.com/dojo/lessons/ten-reasons-why-you-fix-bugs-as-soon-as-you-find-them">(Why?)</a></p>
-	</div>
+	<style>
+		h2{
+			font-size: 18px;
+			color: #172b4d;
+			margin-bottom: 8px;
+			padding: 0 8px;
+		}
+		ul#bugsNotInProcess{
+			background-color: #dfe1e6;
+			border-radius: 3px;
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			max-height: 100%;
+			width: 272px;
+			position: relative;
+			white-space: normal;
+			list-style: none;
+			padding: 0 4px;
+		}
+		.list-card-details a{
+			position: relative;
+			display: block;
+			flex: 1 1 auto;
+			overflow-y: auto;
+			overflow-x: hidden;
+			margin: 0 4px;
+			padding: 25px 5px 25px 15px;
+			z-index: 1;
+			min-height: 20px;
+			background-color: #fff;
+			color: #172b4d;
+			text-decoration: none;
+			border-radius: 3px;
+			box-shadow: 0 1px 0 rgba(9,30,66,.25);
+		}
+		.list-card-details a::before{
+			content: '';
+			position: absolute;
+			border-radius: 4px;
+			left: 15px;
+			top: 10px;
+			height: 8px;
+			max-width: 40px;
+			min-width: 40px;
+			padding: 0;
+			width: auto;
+			background-color: #eb5a46;
+		}
+	</style>
+
+	<ul id="bugsNotInProcess">
+<!--		<h1>Fix it!</h1>-->
+		<h2>bugs not in process</h2>
+<!--		<p>If you know there is a bug, you must fix it. <a href="https://www.ministryoftesting.com/dojo/lessons/ten-reasons-why-you-fix-bugs-as-soon-as-you-find-them">(Why?)</a></p>-->
+	</ul>
 
 	<div id="allCards"></div>
 	<div id="noLabel"></div>
