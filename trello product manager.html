@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Product manager dashboard</title>
+	<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://api.trello.com/1/client.js?key=5971ce0cdd8bc45946980a62ed81ae8c"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		window.Trello.authorize({
+  type: 'popup',
+  name: 'Getting Started Application',
+  scope: {
+    read: 'true',
+    write: 'true' },
+  expiration: 'never',
+  success: authenticationSuccess,
+  error: authenticationFailure
+});	
+
+var stakeHolderBoardId = "gKxlWcuZ"
+var APIurl = {
+	lablesOnStakeHolderBoard: "/boards/" + stakeHolderBoardId + "/labels",
+	cardsOnStakeHolderBoard: "/boards/" + stakeHolderBoardId + "/cards/?customFieldItems=true"
+}
+
+Trello.get(APIurl.cardsOnStakeHolderBoard, cardsRequestSuccess, error);
+
+var cardsObjects;
+function cardsRequestSuccess(data){
+	cardsObjects = data;
+	Trello.get(APIurl.lablesOnStakeHolderBoard, labelsRequestSuccess, error)
+
+
+	console.log(data);
+	showBugsNotInProcess(data);
+	showNoLabelCards(data);
+	showNoPersonaCards(data);
+	showCardsWithoutEpic(data);
+	z = selectBugCards(data);
+	console.log(z);
+}
+
+function error(data) {
+	console.log(data);
+}
+
+function selectBugCards(array){
+	var bugsIDs = [];
+	$(array).each(function (i,v) {
+		// check if relevant label is assigned
+		var isBug = false;
+		$(v.labels).each(function(i,v){
+			if (v.name == "bug") {
+				isBug = true;
+			}
+		});
+		isBug ? bugsIDs.push(v.id) : false;	
+	});
+	return bugsIDs;
+}
+
+function showBugsNotInProcess(array) {
+	var bugCardsIds = selectBugCards(array);
+	var container = $("#bugsNotInProcess");
+	$(array).each(function (i,v) {
+		var name = v.name;
+		var url = v.url;
+		var listId = "5cc038eb82b24e47dfebb29a";
+		var id = v.id
+		var idList = v.idList
+		var isInList = false
+		$(bugCardsIds).each(function(i,v){
+			if (idList =! listId && v == id) {
+				console.log(true)
+				isInList = true
+				container.append('<a href="' + url + '">' + name + '</a>' + "<br>");	
+			}
+		});
+
+		
+		
+		
+	})
+}
+
+function showAllCards(array) {
+	 allCardsContainer = $("#allCards");
+	$(array).each(function (i,v) {
+		allCardsContainer.append(v.id + "<br>");
+		console.log(v);
+	})
+}
+
+function showNoLabelCards(array) {
+
+	var counter = 0;
+	noLabelContainer = $("#noLabel");
+	$(array).each(function (i,v) {
+		if (v.labels.length == 0) {
+			if (counter == 0){
+				noLabelContainer.append("<span style=\"background: red\">No labels here :( </span><br><br>");	
+				counter++;
+			}
+			noLabelContainer.append('<a href="https://trello.com/c/' + v.id + '">' + v.name + '</a>' + "<br>");	
+
+
+		}
+	})
+}
+
+function showNoPersonaCards(array) {
+
+	var counter = 0;
+	noLabelContainer = $("#noPersona");
+	$(array).each(function (i,v) {
+		var name = v.name;
+		var id = v.id;
+		var hasPersona = false;
+	
+		// check if relevant label is assigned
+		$(v.labels).each(function(i,v){
+			if (v.name == "Customer" || v.name == "End-user" || v.name == "Developer" || v.name == "Business") {
+				hasPersona = true;
+			}
+		});
+		if (counter == 0){
+					noLabelContainer.append("<br><br><span style=\"background: red\">No Persona here :( </span><br><br>");	
+					counter++;
+		}
+		if (hasPersona == false){
+			noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");	
+			// isNoPersona = false;	
+		}
+		
+		
+		
+	})
+}
+
+function showCardsWithoutEpic(array) {
+
+	var counter = 0;
+	noLabelContainer = $("#noEpic");
+	$(array).each(function (i,v) {
+		var name = v.name;
+		var id = v.id;
+		var hasEpic = false;
+	
+		// check if relevant label is assigned
+		$(v.labels).each(function(i,v){
+			if (v.name == "HAS EPIC" || v.name == "bug") {
+				hasEpic = true;
+			}
+		});
+		if (counter == 0){
+					noLabelContainer.append("<br><br><span style=\"background: red\">No no Epic :( </span><br><br>");	
+					counter++;
+		}
+		if (hasEpic == false){
+			noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");	
+			// isNoPersona = false;	
+		}
+		
+		
+		
+	})
+}
+
+
+function authenticationSuccess() {
+	console.log("Auth Success")
+}
+
+function authenticationFailure() {
+	console.log("Auth failed")
+}
+	
+function log(v){
+	console.log(v);
+}
+
+
+var labelsRequestSuccess = function(data){
+	showLabelsWhioutCards(data);
+}
+var showLabelsWhioutCards = function(labesObjests) {
+	var labelsOnTheCards = [];
+	$(cardsObjects).each(function(i,v){
+		$(v.labels).each(function(i,v){
+			labelsOnTheCards.push(v);
+		});
+	});
+	
+	var labelsOnTheCardsIds = []
+	$(labelsOnTheCards).each(function(i,v){
+		labelsOnTheCardsIds.push(v.id)
+	});
+
+	var lonelyLabels = []
+	$(labesObjests).each(function(i,v){
+
+		if (labelsOnTheCardsIds.includes(v.id) == false && v.id != "5cd916492684a3894419f34f") {
+			lonelyLabels.push(v);
+			var color = v.color;
+			if (color == "black") {
+				color = "lightgrey";
+			}
+			$("#labelsWithoutCards").append("<span onclick=deleteLabel('" +v.id+ "') style='background:"+ color +"'>" + v.name + "<span style='border: 1px red solid; padding: 3px; border-radius: 2px; background:pink'> click to delete </span></span> " + "</br>");
+		}	
+	})
+
+	log(lonelyLabels)
+}
+
+function deleteLabel(id) {
+	Trello.delete("/labels/" + id, log(123));
+}
+
+$.get('/example.json', function(data, status){
+	log(data.super );
+});
+
+
+
+
+	</script>
+
+<div id="bugsNotInProcess">
+	<h1>Fix it!</h1>
+	<p>If you know there is a bug, you must fix it. <a href="https://www.ministryoftesting.com/dojo/lessons/ten-reasons-why-you-fix-bugs-as-soon-as-you-find-them">(Why?)</a></p>
+</div>
+
+<div id="allCards"></div>
+<div id="noLabel"></div>
+<div id="noPersona"></div>
+<div id="noEpic"></div>
+
+<div id="labelsWithoutCards">
+	<h1>Keep it clean</h1>
+	<p>These labels are not used on the board:</p>
+</div>
+
+<div>
+	<h2>Utility info</h2>
+	<p>https://developers.trello.com/docs/getting-started-custom-fields#section-get-all-custom-field-definitions-on-a-board</p>
+	<pre>
+	</pre>
+</div>
+
+
+
+
+</body>
+</html>
