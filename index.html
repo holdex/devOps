@@ -11,16 +11,16 @@
 <body>
 <script type="text/javascript">
 	window.Trello.authorize({
-	  type: 'popup',
-	  name: 'Getting Started Application',
-	  scope: {
-	    read: 'true',
-	    write: 'true' },
-	  expiration: 'never',
-	  success: authenticationSuccess,
-	  error: authenticationFailure
+		type: 'popup',
+		name: 'Getting Started Application',
+		scope: {
+			read: 'true',
+			write: 'true' },
+		expiration: 'never',
+		success: authenticationSuccess,
+		error: authenticationFailure
 	});
-
+	
 	var stakeHolderBoardId = "0jbJrgQT"
 	var APIurl = {
 		lablesOnStakeHolderBoard: "/boards/" + stakeHolderBoardId + "/labels",
@@ -29,13 +29,13 @@
 	}
 	
 	Trello.get(APIurl.cardsOnStakeHolderBoard, cardsRequestSuccess, error);
-	Trello.get(APIurl.listOnStakeHolderBoard, getAllLists, error);
+	Trello.get(APIurl.listOnStakeHolderBoard, getAllListsInBoard, error);
 	
-	function getAllLists(data) {
+	function getAllListsInBoard(data) {
 		console.log("board lists", data)
 	}
 	let inProcessListId = "5cdd02c1a2d65314809ed345";
-
+	
 	var cardsObjects;
 	function cardsRequestSuccess(data){
 		cardsObjects = data;
@@ -46,8 +46,128 @@
 		showNoPersonaCards(data);
 		showCardsWithoutEpic(data);
 		z = selectBugCards(data);
-		console.log("selectBugCards",z);
+		console.log('selectBugCards',z);
 	}
+	
+	function error(data) {
+		console.log(data);
+	}
+	
+	function selectBugCards(array){
+		var bugsIDs = [];
+		$(array).each(function (i,v) {
+			// check if relevant label is assigned
+			var isBug = false;
+			$(v.labels).each(function(i,v){
+				if (v.name === "bug") {
+					isBug = true;
+				}
+			});
+			isBug ? bugsIDs.push(v.id) : false;
+		});
+		return bugsIDs;
+	}
+	
+	function showBugsNotInProcess(array) {
+		console.log('showBugsNotInProcess', array);
+		var bugCardsIds = selectBugCards(array);
+		var container = $("#bugsNotInProcess");
+		$(array).each(function (i,v) {
+			var name = v.name;
+			var url = v.url;
+			var id = v.id;
+			var idList = v.idList;
+			$(bugCardsIds).each(function(i,v){
+				if (idList !== inProcessListId && v === id) {
+					container.append('<li class="list-card-details"><a href="' + url + '">' + name + '</a></li>' + "<br>");
+				}
+			});
+		})
+	}
+	
+	function showAllCards(array) {
+		allCardsContainer = $("#allCards");
+		$(array).each(function (i,v) {
+			allCardsContainer.append(v.id + "<br>");
+			console.log(v);
+		})
+	}
+	
+	function showNoLabelCards(array) {
+		
+		var counter = 0;
+		noLabelContainer = $("#noLabel");
+		$(array).each(function (i,v) {
+			if (v.labels.length === 0) {
+				if (counter === 0){
+					noLabelContainer.append("<span style=\"background: red\">No labels here :( </span><br><br>");
+					counter++;
+				}
+				noLabelContainer.append('<a href="https://trello.com/c/' + v.id + '">' + v.name + '</a>' + "<br>");
+				
+				
+			}
+		})
+	}
+	
+	function showNoPersonaCards(array) {
+		
+		var counter = 0;
+		noLabelContainer = $("#noPersona");
+		$(array).each(function (i,v) {
+			var name = v.name;
+			var id = v.id;
+			var hasPersona = false;
+			
+			// check if relevant label is assigned
+			$(v.labels).each(function(i,v){
+				if (v.name === "Customer" || v.name === "End-user" || v.name === "Developer" || v.name === "Business") {
+					hasPersona = true;
+				}
+			});
+			if (counter === 0){
+				noLabelContainer.append("<br><br><span style=\"background: red\">No Persona here :( </span><br><br>");
+				counter++;
+			}
+			if (hasPersona === false){
+				noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
+				// isNoPersona = false;
+			}
+			
+			
+			
+		})
+	}
+	
+	function showCardsWithoutEpic(array) {
+		
+		var counter = 0;
+		noLabelContainer = $("#noEpic");
+		$(array).each(function (i,v) {
+			var name = v.name;
+			var id = v.id;
+			var hasEpic = false;
+			
+			// check if relevant label is assigned
+			$(v.labels).each(function(i,v){
+				if (v.name === "HAS EPIC" || v.name === "bug") {
+					hasEpic = true;
+				}
+			});
+			if (counter === 0){
+				noLabelContainer.append("<br><br><span style=\"background: red\">No no Epic :( </span><br><br>");
+				counter++;
+			}
+			if (hasEpic === false){
+				noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
+				// isNoPersona = false;
+			}
+			
+			
+			
+		})
+	}
+	
 	
 	function authenticationSuccess() {
 		console.log("Auth Success")
@@ -61,119 +181,10 @@
 		console.log(v);
 	}
 	
-	function error(data) {
-		console.log(data);
-	}
-
-	function selectBugCards(array){
-		var bugsIDs = [];
-		$(array).each(function (i,v) {
-			// check if relevant label is assigned
-			var isBug = false;
-			$(v.labels).each(function(i,v){
-				if (v.name == "bug") {
-					isBug = true;
-				}
-			});
-			isBug ? bugsIDs.push(v.id) : false;
-		});
-		return bugsIDs;
-	}
-
-	function showBugsNotInProcess(array) {
-		console.log('showBugsNotInProcess', array)
-		var bugCardsIds = selectBugCards(array);
-		var container = $("#bugsNotInProcess");
-		$(array).each(function (i,v) {
-			var name = v.name;
-			var url = v.url;
-			var id = v.id
-			var idList = v.idList
-			$(bugCardsIds).each(function(i,v){
-				if (idList !== inProcessListId && v === id) {
-					container.append('<li class="list-card-details"><a href="' + url + '">' + name + '</a></li>' + "<br>");
-				}
-			});
-		})
-	}
-
-	function showAllCards(array) {
-		 allCardsContainer = $("#allCards");
-		$(array).each(function (i,v) {
-			allCardsContainer.append(v.id + "<br>");
-			console.log(v);
-		})
-	}
-	
-	function showNoLabelCards(array) {
-		var counter = 0;
-		noLabelContainer = $("#noLabel");
-		$(array).each(function (i,v) {
-			if (v.labels.length == 0) {
-				if (counter == 0){
-					noLabelContainer.append("<span style=\"background: red\">No labels here :( </span><br><br>");
-					counter++;
-				}
-				noLabelContainer.append('<a href="https://trello.com/c/' + v.id + '">' + v.name + '</a>' + "<br>");
-			}
-		})
-	}
-	
-	function showNoPersonaCards(array) {
-		var counter = 0;
-		noLabelContainer = $("#noPersona");
-		$(array).each(function (i,v) {
-			var name = v.name;
-			var id = v.id;
-			var hasPersona = false;
-		
-			// check if relevant label is assigned
-			$(v.labels).each(function(i,v){
-				if (v.name == "Customer" || v.name == "End-user" || v.name == "Developer" || v.name == "Business") {
-					hasPersona = true;
-				}
-			});
-			if (counter == 0){
-						noLabelContainer.append("<br><br><span style=\"background: red\">No Persona here :( </span><br><br>");
-						counter++;
-			}
-			if (hasPersona == false){
-				noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
-				// isNoPersona = false;
-			}
-		})
-	}
-	
-	function showCardsWithoutEpic(array) {
-	
-		var counter = 0;
-		noLabelContainer = $("#noEpic");
-		$(array).each(function (i,v) {
-			var name = v.name;
-			var id = v.id;
-			var hasEpic = false;
-		
-			// check if relevant label is assigned
-			$(v.labels).each(function(i,v){
-				if (v.name == "HAS EPIC" || v.name == "bug") {
-					hasEpic = true;
-				}
-			});
-			if (counter == 0){
-						noLabelContainer.append("<br><br><span style=\"background: red\">No no Epic :( </span><br><br>");
-						counter++;
-			}
-			if (hasEpic == false){
-				noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
-				// isNoPersona = false;
-			}
-		})
-	}
 	
 	var labelsRequestSuccess = function(data){
 		showLabelsWhioutCards(data);
 	}
-	
 	var showLabelsWhioutCards = function(labesObjests) {
 		var labelsOnTheCards = [];
 		$(cardsObjects).each(function(i,v){
@@ -186,20 +197,20 @@
 		$(labelsOnTheCards).each(function(i,v){
 			labelsOnTheCardsIds.push(v.id)
 		});
-	
+		
 		var lonelyLabels = []
 		$(labesObjests).each(function(i,v){
-	
-			if (labelsOnTheCardsIds.includes(v.id) == false && v.id != "5cd916492684a3894419f34f") {
+			
+			if (labelsOnTheCardsIds.includes(v.id) === false && v.id !== "5cd916492684a3894419f34f") {
 				lonelyLabels.push(v);
 				var color = v.color;
-				if (color == "black") {
+				if (color === "black") {
 					color = "lightgrey";
 				}
-				$("#labelsWithoutCards").append("<span onclick=deleteLabel('" +v.id+ "') style='background:"+ color +"'>" + v.color + "<span style='border: 1px red solid; padding: 3px; border-radius: 2px; background:pink'> click to delete </span></span> " + "</br>");
+				$("#labelsWithoutCards").append("<span onclick=deleteLabel('" +v.id+ "') style='background:"+ color +"'>" + v.name + "<span style='border: 1px red solid; padding: 3px; border-radius: 2px; background:pink'> click to delete </span></span> " + "</br>");
 			}
 		})
-	
+		
 		log(lonelyLabels)
 	}
 	
@@ -210,8 +221,11 @@
 	$.get('/example.json', function(data, status){
 		log(data.super );
 	});
-	
-	</script>
+
+
+
+
+</script>
 
 	<ul id="bugsNotInProcess">
 <!--		<h1>Fix it!</h1>-->
