@@ -4,19 +4,24 @@ h2{
 	margin-bottom: 8px;
 	padding: 0 8px;
 }
-ul#bugsNotInProcess{
+.bugsNotInProcess{
 	background-color: #dfe1e6;
 	border-radius: 3px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	max-height: 100%;
-	width: 272px;
+	max-width: 500px;
 	position: relative;
 	white-space: normal;
 	list-style: none;
 	padding: 0 4px;
 }
+
+.bugsNotInProcess h1, p{
+	margin: 20px
+}
+
 .list-card-details a{
 	position: relative;
 	display: block;
@@ -24,7 +29,7 @@ ul#bugsNotInProcess{
 	overflow-y: auto;
 	overflow-x: hidden;
 	margin: 0 4px;
-	padding: 25px 5px 25px 15px;
+	padding: 25px 5px 10px 10px;
 	z-index: 1;
 	min-height: 20px;
 	background-color: #fff;
