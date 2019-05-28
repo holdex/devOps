@@ -6,10 +6,13 @@
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
             crossorigin="anonymous"></script>
-	<script src="https://api.trello.com/1/client.js?key=5971ce0cdd8bc45946980a62ed81ae8c"></script>
+	<script src="https://api.trello.com/1/client.js?key=94afea1ea20379967621024a84542978"></script>
+	<!-- iaroslavfleancu key:	94afea1ea20379967621024a84542978 -->
+	<!-- production key:	5971ce0cdd8bc45946980a62ed81ae8c -->
 </head>
 <body>
 <script type="text/javascript">
+	$(document).ready(function () {
 	window.Trello.authorize({
 		type: 'popup',
 		name: 'Getting Started Application',
@@ -21,12 +24,30 @@
 		error: authenticationFailure
 	});
 	
-	var stakeHolderBoardId = "gKxlWcuZ"
+	let windowLocation = window.location;
+	let getUrlParams = new URLSearchParams(window.location.search);
+	
+	// var stakeHolderBoardId = "gKxlWcuZ";  // production`
+	let stakeHolderBoardId = getUrlParams.get("boardId") ? getUrlParams.get("boardId") : "0jbJrgQT"; // stage
+	
+	// let inProcessListId = "5cc038eb82b24e47dfebb29a"; // production
+	let inProcessListId = getUrlParams.get("inProcessListId") ? getUrlParams.get("inProcessListId") : "5cdd02c1a2d65314809ed345"; // stage
+	
 	var APIurl = {
 		lablesOnStakeHolderBoard: "/boards/" + stakeHolderBoardId + "/labels",
 		cardsOnStakeHolderBoard: "/boards/" + stakeHolderBoardId + "/cards/?customFieldItems=true",
 		listOnStakeHolderBoard: '/boards/' + stakeHolderBoardId + '/?lists=all&list_fields=all'
 	}
+		
+		if (windowLocation.hash){
+			if (windowLocation.hash === "#production"){
+				$("a.production").addClass('active');
+			}else{
+				$("a.stage").addClass('active');
+			}
+		}
+	
+	
 	
 	Trello.get(APIurl.cardsOnStakeHolderBoard, cardsRequestSuccess, error);
 	Trello.get(APIurl.listOnStakeHolderBoard, getAllListsInBoard, error);
@@ -34,7 +55,6 @@
 	function getAllListsInBoard(data) {
 		console.log("board lists", data)
 	}
-	let inProcessListId = "5cc038eb82b24e47dfebb29a";
 	
 	var cardsObjects;
 	function cardsRequestSuccess(data){
@@ -79,7 +99,7 @@
 			var idList = v.idList;
 			$(bugCardsIds).each(function(i,v){
 				if (idList !== inProcessListId && v === id) {
-					container.append('<li class="list-card-details"><a href="' + url + '">' + name + '</a></li>' + "<br>");
+					container.append('<li class="list-card-details"><a target="_blank" href="' + url + '">' + name + '</a></li>' + "<br>");
 				}
 			});
 		})
@@ -103,7 +123,7 @@
 					noLabelContainer.append("<span style=\"background: red\">No labels here :( </span><br><br>");
 					counter++;
 				}
-				noLabelContainer.append('<a href="https://trello.com/c/' + v.id + '">' + v.name + '</a>' + "<br>");
+				noLabelContainer.append('<a target="_blank" href="https://trello.com/c/' + v.id + '">' + v.name + '</a>' + "<br>");
 				
 				
 			}
@@ -130,7 +150,7 @@
 				counter++;
 			}
 			if (hasPersona === false){
-				noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
+				noLabelContainer.append('<a target="_blank" href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
 				// isNoPersona = false;
 			}
 			
@@ -159,7 +179,7 @@
 				counter++;
 			}
 			if (hasEpic === false){
-				noLabelContainer.append('<a href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
+				noLabelContainer.append('<a target="_blank" href="https://trello.com/c/' + id + '">' + name + '</a>' + "<br>");
 				// isNoPersona = false;
 			}
 			
@@ -221,16 +241,17 @@
 	$.get('/example.json', function(data, status){
 		log(data.super );
 	});
-
-
+	
+	})
 
 
 </script>
 
 	<ul id="bugsNotInProcess" class="bugsNotInProcess">
-		<h1>Fix it ASAP!</h1>
-		<p>If you know there is a bug, you must fix it ASAP. Now, someone can not use our product and going away from us. Most likely this person will be NEVER BACK! <a href="https://www.ministryoftesting.com/dojo/lessons/ten-reasons-why-you-fix-bugs-as-soon-as-you-find-them">(Why?)</a></p>
-		<h2>These bugs are not in process of being fixed, but they must be:</h2>
+<!--		<h1>Fix it ASAP!</h1>-->
+<!--		<p>If you know there is a bug, you must fix it ASAP. Now, someone can not use our product and going away from us. Most likely this person will be NEVER BACK! <a href="https://www.ministryoftesting.com/dojo/lessons/ten-reasons-why-you-fix-bugs-as-soon-as-you-find-them">(Why?)</a></p>-->
+<!--		<h2>These bugs are not in process of being fixed, but they must be:</h2>-->
+		<h2>bugs not in process</h2>
 	</ul>
 
 	<div id="allCards"></div>
@@ -248,5 +269,9 @@
 		<p>https://developers.trello.com/docs/getting-started-custom-fields#section-get-all-custom-field-definitions-on-a-board</p>
 		<pre></pre>
 	</div>
+
+	<a class="switch-board-btn production" href="/?boardId=gKxlWcuZ&inProcessListId=5cc038eb82b24e47dfebb29a#production">Stakeholder Interview board</a>
+	<a class="switch-board-btn stage" href="/?boardId=0jbJrgQT&inProcessListId=5cdd02c1a2d65314809ed345#stage">Sandbox board</a>
+
 </body>
 </html>

@@ -51,3 +51,31 @@ h2{
 	width: auto;
 	background-color: #eb5a46;
 }
+a.switch-board-btn{
+	display: inline-block;
+	padding: 15px 20px 14px;
+	background-color: #000;
+	font-size: 13px;
+	text-transform: uppercase;
+	text-align: center;
+	color: #fff;
+	text-decoration: none;
+}
+
+a.switch-board-btn.active{
+	background-color: #717171;
+}
+a.switch-board-btn{
+	display: inline-block;
+	padding: 15px 20px 14px;
+	background-color: #000;
+	font-size: 13px;
+	text-transform: uppercase;
+	text-align: center;
+	color: #fff;
+	text-decoration: none;
+}
+
+a.switch-board-btn.active{
+	background-color: #717171;
+}
